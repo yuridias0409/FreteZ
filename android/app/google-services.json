@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "122203940733",
+    "firebase_url": "https://fretez-3811f.firebaseio.com",
+    "project_id": "fretez-3811f",
+    "storage_bucket": "fretez-3811f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:122203940733:android:0be22fc3927c9879ba0e14",
+        "android_client_info": {
+          "package_name": "com.fretzapp.fretez"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "122203940733-hjvo42jckbsbeg324ncr16dsbgsu2hhd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuEC5Gd3XyUeHgpw9vC8uBkHEvPe2oVAU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "122203940733-hjvo42jckbsbeg324ncr16dsbgsu2hhd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
