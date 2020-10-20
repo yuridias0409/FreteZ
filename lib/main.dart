@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'file:///D:/AndroidStudioProjects/fretez/lib/Views/Login.dart';
 import 'package:fretez/Rotas.dart';
+import 'package:fretez/Views/Login/Login.dart';
 
 
 void main() {

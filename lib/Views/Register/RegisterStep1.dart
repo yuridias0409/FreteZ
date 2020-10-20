@@ -4,6 +4,7 @@ import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:cpfcnpj/cpfcnpj.dart';
 
 class RegisterStep1 extends StatefulWidget {
   @override
@@ -12,6 +13,25 @@ class RegisterStep1 extends StatefulWidget {
 
 class _RegisterStep1State extends State<RegisterStep1> {
   TextEditingController _controllerCPF = TextEditingController();
+
+  //valida campos
+  String _mensagemErro = "";
+  _validarCampos(){
+    if(_controllerCPF.text.isNotEmpty){
+      if(CPF.isValid(_controllerCPF.text)){
+        Navigator.pushNamed(context, "/registerstep2");
+      } else{
+        setState(() {
+          _mensagemErro = "CPF inválido";
+        });
+      }
+    } else{
+      setState(() {
+        _mensagemErro = "Digite o CPF";
+      });
+    }
+  }
+  //Fim valida campos
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -35,7 +55,7 @@ class _RegisterStep1State extends State<RegisterStep1> {
                 ),
                 Center(
                   child: Text(
-                    "Erro",
+                    _mensagemErro,
                     style: TextStyle(color: Colors.red, fontSize: 22),
                   ),
                 ),
@@ -74,7 +94,7 @@ class _RegisterStep1State extends State<RegisterStep1> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(32)),
                       onPressed: () {
-                        Navigator.pushNamed(context, "/registerstep2");
+                        _validarCampos();
                       },
                     ),
                   ),

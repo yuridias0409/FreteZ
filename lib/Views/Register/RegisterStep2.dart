@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
+import 'package:fretez/Views/Register/RegisterStep3.dart';
 import 'file:///D:/AndroidStudioProjects/fretez/lib/Views/Login.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
@@ -13,12 +14,35 @@ class RegisterStep2 extends StatefulWidget {
 
 class _RegisterStep2State extends State<RegisterStep2> {
   TextEditingController _controllerTell = TextEditingController();
+
+  //valida campos
+  String _mensagemErro = "";
+  _validarCampos() {
+    RegExp regex = new RegExp(r"(\(?\d{2}\)?\s)?(\d{4,5}\-\d{4})");
+    if (_controllerTell.text.isNotEmpty) {
+      if (regex.hasMatch(_controllerTell.text)) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return RegisterStep3(tellUser: _controllerTell.text);
+        }));
+      } else {
+        setState(() {
+          _mensagemErro = "Número inválido";
+        });
+      }
+    } else{
+      setState(() {
+        _mensagemErro = "Digite um telefone";
+      });
+    }
+  }
+  //fim valida campos
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     var widthScreen = size.width;
     var heightScreen = size.height;
-    var maskFormatterTell = new MaskTextInputFormatter(mask: '+## (##) ####-#####', filter: { "#": RegExp(r'[0-9]') });
+    var maskFormatterTell = new MaskTextInputFormatter(mask: '(##) #####-####', filter: { "#": RegExp(r'[0-9]') });
     return Scaffold(
       body: Container(
         width: widthScreen,
@@ -36,7 +60,7 @@ class _RegisterStep2State extends State<RegisterStep2> {
                 ),
                 Center(
                   child: Text(
-                    "Erro",
+                    _mensagemErro,
                     style: TextStyle(color: Colors.red, fontSize: 22),
                   ),
                 ),
@@ -45,7 +69,7 @@ class _RegisterStep2State extends State<RegisterStep2> {
                     child: TextField(
                       controller: _controllerTell,
                       inputFormatters: [maskFormatterTell],
-                      keyboardType: TextInputType.text,
+                      keyboardType: TextInputType.phone,
                       style: TextStyle(
                         fontSize: 20,
                         color: Colors.white,
@@ -74,7 +98,9 @@ class _RegisterStep2State extends State<RegisterStep2> {
                       padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(32)),
-                      onPressed: () {},
+                      onPressed: () {
+                        _validarCampos();
+                      },
                     ),
                   ),
                 ),

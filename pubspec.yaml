@@ -42,7 +42,7 @@ dev_dependencies:
   flutter_masked_text: ^0.8.0
   mask_text_input_formatter: ^1.1.0
   footer: ^0.0.3
-  firebase_auth: ^0.18.1+2
+  cpfcnpj: ^1.0.3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

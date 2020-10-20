@@ -12,6 +12,11 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   TextEditingController _controllerEmail = TextEditingController();
   TextEditingController _controllerSenha = TextEditingController();
+
+  //valida campos
+  String _mensagemErro = "";
+  //fim valida campos
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -34,7 +39,7 @@ class _LoginState extends State<Login> {
                 ),
                 Center(
                   child: Text(
-                    "Erro",
+                    _mensagemErro,
                     style: TextStyle(color: Colors.red, fontSize: 22),
                   ),
                 ),
@@ -47,23 +52,7 @@ class _LoginState extends State<Login> {
                         Buttons.Facebook,
                         mini: true,
                         text: "Facebook",
-                        onPressed: () async {
-                          FirebaseAuth auth = FirebaseAuth.instance;
-
-                          await auth.verifyPhoneNumber(
-                            phoneNumber: '+55 16 992447109',
-                            codeSent: (String verificationId, int resendToken) async {
-                              // Update the UI - wait for the user to enter the SMS code
-                              String smsCode = 'Olá você é lindo';
-
-                              // Create a PhoneAuthCredential with the code
-                              PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode);
-
-                              // Sign the user in (or link) with the credential
-                              await auth.signInWithCredential(phoneAuthCredential);
-                            },
-                          );
-                        },
+                        onPressed: () {},
                       ),
                       SignInButton(
                         Buttons.Twitter,

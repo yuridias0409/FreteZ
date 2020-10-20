@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'file:///D:/AndroidStudioProjects/fretez/lib/Views/Login.dart';
-import 'file:///D:/AndroidStudioProjects/fretez/lib/Views/RegisterStep1.dart';
-import 'file:///D:/AndroidStudioProjects/fretez/lib/Views/RegisterStep2.dart';
+import 'package:fretez/Views/Login/Login.dart';
+import 'package:fretez/Views/Register/RegisterStep1.dart';
+import 'package:fretez/Views/Register/RegisterStep2.dart';
+import 'package:fretez/Views/Register/RegisterStep3.dart';
+
 
 class Rotas {
   static Route<dynamic> gerarRotas(RouteSettings settings){
