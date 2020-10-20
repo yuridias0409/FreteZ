@@ -42,7 +42,7 @@ class _RegisterStep2State extends State<RegisterStep2> {
     var size = MediaQuery.of(context).size;
     var widthScreen = size.width;
     var heightScreen = size.height;
-    var maskFormatterTell = new MaskTextInputFormatter(mask: '(##) #####-####', filter: { "#": RegExp(r'[0-9]') });
+    var maskFormatterTell = new MaskTextInputFormatter(mask: '## #####-####', filter: { "#": RegExp(r'[0-9]') });
     return Scaffold(
       body: Container(
         width: widthScreen,

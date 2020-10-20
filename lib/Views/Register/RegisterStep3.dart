@@ -5,6 +5,8 @@ import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:async';
 
 class RegisterStep3 extends StatefulWidget {
   final String tellUser;
@@ -21,6 +23,46 @@ class _RegisterStep3State extends State<RegisterStep3> {
   //valida campos
   String _mensagemErro = "";
   //fim valida campos
+
+  _mandaCodigo() async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    String phoneUser = '+55 '+widget.tellUser;
+    await FirebaseAuth.instance.verifyPhoneNumber(
+      phoneNumber: phoneUser,
+      timeout: const Duration(seconds: 60),
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        // ANDROID ONLY!
+        // Sign the user in (or link) with the auto-generated credential
+        await auth.signInWithCredential(credential);
+      },
+      verificationFailed: (FirebaseAuthException e) {
+        if (e.code == 'invalid-phone-number') {
+          print('Erro');
+        }
+        // Handle other errors
+      },
+      codeSent: (String verificationId, int resendToken) async {
+        // Update the UI - wait for the user to enter the SMS code
+        String smsCode = 'Seu codigo FreteZ é';
+
+        // Create a PhoneAuthCredential with the code
+        PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
+            verificationId: verificationId, smsCode: smsCode);
+
+        // Sign the user in (or link) with the credential
+        await auth.signInWithCredential(phoneAuthCredential);
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {
+        Navigator.pushNamed(context, "/registerstep2");
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    _mandaCodigo();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +82,7 @@ class _RegisterStep3State extends State<RegisterStep3> {
                 Padding(
                   padding: EdgeInsets.only(bottom: 6),
                   child:
-                  Image.asset("images/Logo.png", width: 350, height: 200),
+                      Image.asset("images/Logo.png", width: 350, height: 200),
                 ),
                 Center(
                   child: Text(
@@ -67,7 +109,7 @@ class _RegisterStep3State extends State<RegisterStep3> {
                     child: TextField(
                       controller: _controllerVerifica,
                       keyboardType: TextInputType.number,
-                      maxLength: 5,
+                      maxLength: 6,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 20,
@@ -83,8 +125,7 @@ class _RegisterStep3State extends State<RegisterStep3> {
                         enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.white)),
                       ),
-                    )
-                ),
+                    )),
                 Padding(
                   padding: EdgeInsets.only(top: 30, bottom: 30),
                   child: Center(
@@ -97,7 +138,9 @@ class _RegisterStep3State extends State<RegisterStep3> {
                       padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(32)),
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushNamed(context, "/registerstep4");
+                      },
                     ),
                   ),
                 ),

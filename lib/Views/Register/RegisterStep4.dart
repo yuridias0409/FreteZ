@@ -3,41 +3,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
+import 'package:fretez/Views/Register/RegisterStep3.dart';
+import 'file:///D:/AndroidStudioProjects/fretez/lib/Views/Login.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:cpfcnpj/cpfcnpj.dart';
 
-class RegisterStep1 extends StatefulWidget {
+class RegisterStep4 extends StatefulWidget {
   @override
-  _RegisterStep1State createState() => _RegisterStep1State();
+  _RegisterStep4State createState() => _RegisterStep4State();
 }
 
-class _RegisterStep1State extends State<RegisterStep1> {
-  TextEditingController _controllerCPF = TextEditingController();
+class _RegisterStep4State extends State<RegisterStep4> {
+  TextEditingController _controllerNome = TextEditingController();
+  TextEditingController _controllerDataNascimento = TextEditingController();
 
   //valida campos
   String _mensagemErro = "";
-  _validarCampos(){
-    if(_controllerCPF.text.isNotEmpty){
-      if(CPF.isValid(_controllerCPF.text)){
-        Navigator.pushNamed(context, "/registerstep2");
-      } else{
-        setState(() {
-          _mensagemErro = "CPF inválido";
-        });
-      }
-    } else{
-      setState(() {
-        _mensagemErro = "Digite o CPF";
-      });
-    }
-  }
-  //Fim valida campos
+  //fim valida campos
+
+  //checkbox
+  bool _cbTermosDeUso = false;
+  void _cbTermosDeUsoChanged(bool value) => setState(() => _cbTermosDeUso = value);
+  //fim checkbox
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     var widthScreen = size.width;
     var heightScreen = size.height;
-    var maskFormatterCpf = new MaskTextInputFormatter(mask: '###.###.###-##', filter: { "#": RegExp(r'[0-9]') });
+    var maskFormatterData = new MaskTextInputFormatter(
+        mask: '##/##/####', filter: {"#": RegExp(r'[0-9]')});
+
+    //Checkbox
+    bool _isChecked = true;
     return Scaffold(
       body: Container(
         width: widthScreen,
@@ -60,17 +57,16 @@ class _RegisterStep1State extends State<RegisterStep1> {
                   ),
                 ),
                 Padding(
-                    padding: EdgeInsets.only(top: 50),
+                    padding: EdgeInsets.only(top: 50, bottom: 30),
                     child: TextField(
-                      controller: _controllerCPF,
-                      inputFormatters: [maskFormatterCpf],
-                      keyboardType: TextInputType.number,
+                      controller: _controllerNome,
+                      keyboardType: TextInputType.text,
                       style: TextStyle(
                         fontSize: 20,
                         color: Colors.white,
                       ),
                       decoration: InputDecoration(
-                        hintText: "CPF",
+                        hintText: "Nome Completo",
                         hintStyle: TextStyle(
                           color: Colors.white,
                         ),
@@ -79,23 +75,55 @@ class _RegisterStep1State extends State<RegisterStep1> {
                         enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.white)),
                       ),
-                    )
+                    )),
+                TextField(
+                  controller: _controllerDataNascimento,
+                  inputFormatters: [maskFormatterData],
+                  keyboardType: TextInputType.number,
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: "Data de Nascimento",
+                    hintStyle: TextStyle(
+                      color: Colors.white,
+                    ),
+                    border: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white)),
+                    enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white)),
+                  ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: 30, bottom: 30),
+                  padding: EdgeInsets.only(top: 10),
+                  child: new Center(
+                    child: new Column(
+                      children: <Widget>[
+                        new CheckboxListTile(
+                          value: _cbTermosDeUso,
+                          onChanged: _cbTermosDeUsoChanged,
+                          title: new Text('Confirmo que li e aceito os termos de uso', style: TextStyle(color: Colors.white, fontSize: 12),),
+                          controlAffinity: ListTileControlAffinity.leading,
+                          activeColor: Color(0xff6DF893),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 45, bottom: 30),
                   child: Center(
                     child: RaisedButton(
                       color: Color(0xff6DF893),
                       child: Text(
-                        "Próximo",
+                        "Criar Conta",
                         style: TextStyle(fontSize: 25),
                       ),
                       padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(32)),
-                      onPressed: () {
-                        _validarCampos();
-                      },
+                      onPressed: () {},
                     ),
                   ),
                 ),
