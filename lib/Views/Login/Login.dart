@@ -153,7 +153,7 @@ class _LoginState extends State<Login> {
                     shape: CircleBorder(
                         side: BorderSide(color: Colors.transparent)),
                     onPressed: () {
-                      Navigator.pushNamed(context, "/registerstep1");
+                      Navigator.pushNamed(context, "/registerstep0");
                     },
                   ),
                 ),

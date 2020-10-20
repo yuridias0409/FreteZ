@@ -6,38 +6,37 @@ import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:cpfcnpj/cpfcnpj.dart';
 
-class RegisterStep1 extends StatefulWidget {
+class RegisterStep0 extends StatefulWidget {
   @override
-  _RegisterStep1State createState() => _RegisterStep1State();
+  _RegisterStep0State createState() => _RegisterStep0State();
 }
 
-class _RegisterStep1State extends State<RegisterStep1> {
-  TextEditingController _controllerCPF = TextEditingController();
-
+class _RegisterStep0State extends State<RegisterStep0> {
+  TextEditingController _controllerNome = TextEditingController();
+  TextEditingController _controllerIdade = TextEditingController();
   //valida campos
   String _mensagemErro = "";
   _validarCampos(){
-    if(_controllerCPF.text.isNotEmpty){
-      if(CPF.isValid(_controllerCPF.text)){
-        Navigator.pushNamed(context, "/registerstep2");
-      } else{
-        setState(() {
-          _mensagemErro = "CPF inválido";
-        });
-      }
+    if(_controllerNome.text.isNotEmpty && _controllerIdade.text.isNotEmpty){
+      Navigator.pushNamed(context, "/registerstep1");
     } else{
-      setState(() {
-        _mensagemErro = "Digite o CPF";
-      });
+      if(_controllerIdade.text.isEmpty){
+        setState(() {
+          _mensagemErro = "Digite sua data de nascimento";
+        });
+      } else if(_controllerNome.text.isEmpty){
+        _mensagemErro = "Digite seu nome completo";
+      }
     }
   }
   //Fim valida campos
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     var widthScreen = size.width;
     var heightScreen = size.height;
-    var maskFormatterCpf = new MaskTextInputFormatter(mask: '###.###.###-##', filter: { "#": RegExp(r'[0-9]') });
+    var maskFormatterData = new MaskTextInputFormatter(mask: '##/##/####', filter: {"#": RegExp(r'[0-9]')});
     return Scaffold(
       body: Container(
         width: widthScreen,
@@ -51,7 +50,7 @@ class _RegisterStep1State extends State<RegisterStep1> {
                 Padding(
                   padding: EdgeInsets.only(bottom: 6),
                   child:
-                      Image.asset("images/Logo.png", width: 350, height: 200),
+                  Image.asset("images/Logo.png", width: 350, height: 200),
                 ),
                 Center(
                   child: Text(
@@ -60,18 +59,17 @@ class _RegisterStep1State extends State<RegisterStep1> {
                   ),
                 ),
                 Padding(
-                    padding: EdgeInsets.only(top: 50),
+                    padding: EdgeInsets.only(bottom: 30, top: 50),
                     child: TextField(
                       autofocus: true,
-                      controller: _controllerCPF,
-                      inputFormatters: [maskFormatterCpf],
-                      keyboardType: TextInputType.number,
+                      controller: _controllerNome,
+                      keyboardType: TextInputType.text,
                       style: TextStyle(
                         fontSize: 20,
                         color: Colors.white,
                       ),
                       decoration: InputDecoration(
-                        hintText: "CPF",
+                        hintText: "Qual é o seu nome completo?",
                         hintStyle: TextStyle(
                           color: Colors.white,
                         ),
@@ -81,6 +79,25 @@ class _RegisterStep1State extends State<RegisterStep1> {
                             borderSide: BorderSide(color: Colors.white)),
                       ),
                     )
+                ),
+                TextField(
+                  controller: _controllerIdade,
+                  inputFormatters: [maskFormatterData],
+                  keyboardType: TextInputType.number,
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: "Quando você nasceu?",
+                    hintStyle: TextStyle(
+                      color: Colors.white,
+                    ),
+                    border: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white)),
+                    enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white)),
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 30, bottom: 30),

@@ -107,6 +107,7 @@ class _RegisterStep3State extends State<RegisterStep3> {
                 Padding(
                     padding: EdgeInsets.only(top: 50),
                     child: TextField(
+                      autofocus: true,
                       controller: _controllerVerifica,
                       keyboardType: TextInputType.number,
                       maxLength: 6,

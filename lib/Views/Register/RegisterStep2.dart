@@ -65,8 +65,9 @@ class _RegisterStep2State extends State<RegisterStep2> {
                   ),
                 ),
                 Padding(
-                    padding: EdgeInsets.only(top: 50),
+                    padding: EdgeInsets.only(bottom: 30, top: 15),
                     child: TextField(
+                      autofocus: true,
                       controller: _controllerTell,
                       inputFormatters: [maskFormatterTell],
                       keyboardType: TextInputType.phone,

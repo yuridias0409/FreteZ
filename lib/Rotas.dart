@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fretez/Views/Login/Login.dart';
+import 'package:fretez/Views/Register/RegisterStep0.dart';
 import 'package:fretez/Views/Register/RegisterStep1.dart';
 import 'package:fretez/Views/Register/RegisterStep2.dart';
 import 'package:fretez/Views/Register/RegisterStep4.dart';
@@ -11,6 +12,10 @@ class Rotas {
       case "/":
         return MaterialPageRoute(
             builder: (_) => Login()
+        );
+      case "/registerstep0":
+        return MaterialPageRoute(
+            builder: (_) => RegisterStep0()
         );
       case "/registerstep1":
         return MaterialPageRoute(

@@ -15,6 +15,9 @@ class RegisterStep4 extends StatefulWidget {
 class _RegisterStep4State extends State<RegisterStep4> {
   TextEditingController _controllerNome = TextEditingController();
   TextEditingController _controllerDataNascimento = TextEditingController();
+  TextEditingController _controllerEmail = TextEditingController();
+  TextEditingController _controllerSenha = TextEditingController();
+  TextEditingController _controllerConfirmarSenha = TextEditingController();
 
   //valida campos
   String _mensagemErro = "";
@@ -30,11 +33,7 @@ class _RegisterStep4State extends State<RegisterStep4> {
     var size = MediaQuery.of(context).size;
     var widthScreen = size.width;
     var heightScreen = size.height;
-    var maskFormatterData = new MaskTextInputFormatter(
-        mask: '##/##/####', filter: {"#": RegExp(r'[0-9]')});
 
-    //Checkbox
-    bool _isChecked = true;
     return Scaffold(
       body: Container(
         width: widthScreen,
@@ -57,43 +56,64 @@ class _RegisterStep4State extends State<RegisterStep4> {
                   ),
                 ),
                 Padding(
-                    padding: EdgeInsets.only(top: 50, bottom: 30),
-                    child: TextField(
-                      controller: _controllerNome,
-                      keyboardType: TextInputType.text,
-                      style: TextStyle(
-                        fontSize: 20,
+                  padding: EdgeInsets.only(bottom: 20, top: 20),
+                  child: TextField(
+                    controller: _controllerEmail,
+                    keyboardType: TextInputType.emailAddress,
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: "Email",
+                      hintStyle: TextStyle(
                         color: Colors.white,
                       ),
-                      decoration: InputDecoration(
-                        hintText: "Nome Completo",
-                        hintStyle: TextStyle(
-                          color: Colors.white,
-                        ),
-                        border: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white)),
-                        enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white)),
-                      ),
-                    )),
+                      border: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white)),
+                      enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white)),
+                    ),
+                  ),
+                ),
                 TextField(
-                  controller: _controllerDataNascimento,
-                  inputFormatters: [maskFormatterData],
-                  keyboardType: TextInputType.number,
+                  controller: _controllerSenha,
+                  keyboardType: TextInputType.text,
+                  cursorColor: Colors.white,
+                  obscureText: true,
                   style: TextStyle(
                     fontSize: 20,
                     color: Colors.white,
                   ),
                   decoration: InputDecoration(
-                    hintText: "Data de Nascimento",
-                    hintStyle: TextStyle(
-                      color: Colors.white,
-                    ),
-                    border: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white)),
-                    enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white)),
+                      hintText: "Senha",
+                      hintStyle: TextStyle(
+                        color: Colors.white,
+                      ),
+                      border: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white)),
+                      enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white))),
+                ),
+                Padding(padding: EdgeInsets.only(bottom: 20, top: 5)),
+                TextField(
+                  controller: _controllerConfirmarSenha,
+                  keyboardType: TextInputType.text,
+                  cursorColor: Colors.white,
+                  obscureText: true,
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
                   ),
+                  decoration: InputDecoration(
+                      hintText: "Confirmar Senha",
+                      hintStyle: TextStyle(
+                        color: Colors.white,
+                      ),
+                      border: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white)),
+                      enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white))),
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 10),
