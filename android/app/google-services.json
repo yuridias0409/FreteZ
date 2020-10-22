@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "122203940733-pkvmdgkf3n47pmvpeur1jbu9g7otorvs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fretzapp.fretez",
+            "certificate_hash": "e48b67ed4e9cf192950d79a6057926cf819246b5"
+          }
+        },
+        {
           "client_id": "122203940733-hjvo42jckbsbeg324ncr16dsbgsu2hhd.apps.googleusercontent.com",
           "client_type": 3
         }

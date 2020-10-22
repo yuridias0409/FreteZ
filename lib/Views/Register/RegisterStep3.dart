@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -34,16 +36,22 @@ class _RegisterStep3State extends State<RegisterStep3> {
         // ANDROID ONLY!
         // Sign the user in (or link) with the auto-generated credential
         await auth.signInWithCredential(credential);
+        Navigator.pushNamed(context, "/registerstep4");
       },
       verificationFailed: (FirebaseAuthException e) {
         if (e.code == 'invalid-phone-number') {
-          print('Erro');
+          setState(() {
+            _mensagemErro = "Telefone inválido";
+          });
         }
         // Handle other errors
       },
       codeSent: (String verificationId, int resendToken) async {
+        Random random = new Random();
+        int randomNumber = random.nextInt(9999) + 100000;
+        print(randomNumber.toString());
         // Update the UI - wait for the user to enter the SMS code
-        String smsCode = 'Seu codigo FreteZ é';
+        String smsCode = randomNumber.toString();
 
         // Create a PhoneAuthCredential with the code
         PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
@@ -57,6 +65,19 @@ class _RegisterStep3State extends State<RegisterStep3> {
       },
     );
   }
+
+  // _validaCodigo() async {
+  //   FirebaseAuth auth = FirebaseAuth.instance;
+  //   String phoneUser = '+55 '+widget.tellUser;
+  //   try {
+  //     ConfirmationResult confirmationResult = await auth.signInWithPhoneNumber(phoneUser);
+  //     UserCredential userCredential = await confirmationResult.confirm(_controllerVerifica.text);
+  //     await auth.signInWithCredential(userCredential.credential);
+  //     Navigator.pushNamed(context, "/registerstep4");
+  //   } catch(e){
+  //     print(e);
+  //   }
+  // }
 
   @override
   void initState() {
@@ -140,7 +161,7 @@ class _RegisterStep3State extends State<RegisterStep3> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(32)),
                       onPressed: () {
-                        Navigator.pushNamed(context, "/registerstep4");
+                        _validaCodigo();
                       },
                     ),
                   ),
