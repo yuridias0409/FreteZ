@@ -26,6 +26,10 @@ class _RegisterStep3State extends State<RegisterStep3> {
   String _mensagemErro = "";
   //fim valida campos
 
+  //Campo de validação
+  int _codigoVerificacao = 0;
+  //Fim de campo de validação
+
   _mandaCodigo() async {
     FirebaseAuth auth = FirebaseAuth.instance;
     String phoneUser = '+55 '+widget.tellUser;
@@ -49,6 +53,8 @@ class _RegisterStep3State extends State<RegisterStep3> {
       codeSent: (String verificationId, int resendToken) async {
         Random random = new Random();
         int randomNumber = random.nextInt(9999) + 100000;
+        _codigoVerificacao = randomNumber;
+        print("codigo:" + _codigoVerificacao.toString());
         print(randomNumber.toString());
         // Update the UI - wait for the user to enter the SMS code
         String smsCode = randomNumber.toString();
@@ -66,18 +72,15 @@ class _RegisterStep3State extends State<RegisterStep3> {
     );
   }
 
-  // _validaCodigo() async {
-  //   FirebaseAuth auth = FirebaseAuth.instance;
-  //   String phoneUser = '+55 '+widget.tellUser;
-  //   try {
-  //     ConfirmationResult confirmationResult = await auth.signInWithPhoneNumber(phoneUser);
-  //     UserCredential userCredential = await confirmationResult.confirm(_controllerVerifica.text);
-  //     await auth.signInWithCredential(userCredential.credential);
-  //     Navigator.pushNamed(context, "/registerstep4");
-  //   } catch(e){
-  //     print(e);
-  //   }
-  // }
+  _validaCodigo() async {
+    if(_codigoVerificacao.toString() == _controllerVerifica.text){
+      Navigator.pushNamed(context, "/registerstep4");
+    } else{
+      setState(() {
+        _mensagemErro = "Telefone inválido";
+      });
+    }
+  }
 
   @override
   void initState() {
