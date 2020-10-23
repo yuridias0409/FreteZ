@@ -24,11 +24,8 @@ class _RegisterStep3State extends State<RegisterStep3> {
 
   //valida campos
   String _mensagemErro = "";
+  String _verificationId = "";
   //fim valida campos
-
-  //Campo de validação
-  int _codigoVerificacao = 0;
-  //Fim de campo de validação
 
   _mandaCodigo() async {
     FirebaseAuth auth = FirebaseAuth.instance;
@@ -51,35 +48,20 @@ class _RegisterStep3State extends State<RegisterStep3> {
         // Handle other errors
       },
       codeSent: (String verificationId, int resendToken) async {
-        Random random = new Random();
-        int randomNumber = random.nextInt(9999) + 100000;
-        _codigoVerificacao = randomNumber;
-        print("codigo:" + _codigoVerificacao.toString());
-        print(randomNumber.toString());
+        setState(() {
+          _verificationId = verificationId;
+        });
         // Update the UI - wait for the user to enter the SMS code
-        String smsCode = randomNumber.toString();
-
+        //String smsCode = _controllerVerifica.text.trim();
         // Create a PhoneAuthCredential with the code
-        PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(
-            verificationId: verificationId, smsCode: smsCode);
-
+        //PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode);
         // Sign the user in (or link) with the credential
-        await auth.signInWithCredential(phoneAuthCredential);
+        //await auth.signInWithCredential(phoneAuthCredential);
       },
       codeAutoRetrievalTimeout: (String verificationId) {
         Navigator.pushNamed(context, "/registerstep2");
       },
     );
-  }
-
-  _validaCodigo() async {
-    if(_codigoVerificacao.toString() == _controllerVerifica.text){
-      Navigator.pushNamed(context, "/registerstep4");
-    } else{
-      setState(() {
-        _mensagemErro = "Telefone inválido";
-      });
-    }
   }
 
   @override
@@ -163,8 +145,14 @@ class _RegisterStep3State extends State<RegisterStep3> {
                       padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(32)),
-                      onPressed: () {
-                        _validaCodigo();
+                      onPressed: () async {
+                        FirebaseAuth auth = FirebaseAuth.instance;
+                        String smsCode = _controllerVerifica.text.trim();
+                        // Create a PhoneAuthCredential with the code
+                        PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(verificationId: _verificationId, smsCode: smsCode);
+                        // Sign the user in (or link) with the credential
+                        await auth.signInWithCredential(phoneAuthCredential);
+                        Navigator.pushNamed(context, "/registerstep4");
                       },
                     ),
                   ),
