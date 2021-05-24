@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
+import 'package:fretez/Widgets/SideMenu.dart';
 
 void main() => runApp(ClientArea());
 
@@ -79,6 +82,14 @@ class _ClientAreaState extends State<ClientArea> {
     });
   }
 
+  _openMenu() { // to-do: open delivery options menu
+    return Container(
+      child: Padding(
+        padding: EdgeInsets.all(10),
+      ),
+    );
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -90,8 +101,9 @@ class _ClientAreaState extends State<ClientArea> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      /*appBar: AppBar(
         title: Text('Client'),
+        backgroundColor: Colors.green,
         actions: <Widget>[
           PopupMenuButton<String>(
             onSelected: _pickMenuItem,
@@ -105,9 +117,86 @@ class _ClientAreaState extends State<ClientArea> {
             },
           )
         ],
-      ),
+      ),*/
+      endDrawer: SideMenu(),
+      body: Container(
+        child: Stack(
+          children: <Widget>[
+            GoogleMap(
+              mapType: MapType.normal,
+              initialCameraPosition: _cameraPosition,
+              onMapCreated: _onMapCreated,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+            ),
+            Positioned(
+              //
+              top: 50,
+              left: 0,
+              right: 0,
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: Container(
+                  height: 50,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.green, width: 4),
+                    borderRadius: BorderRadius.circular(2),
+                    color: Colors.white
+                  ),
+                  child: TextField(
+                    decoration: (
+                        InputDecoration(
+                            icon: Icon(Icons.location_pin),
+                            labelText: "Ponto de partida",
+                            suffixIcon: Icon(Icons.keyboard_voice)
+                        )
+                    ),
+                  ),
+                ),
+              )
+            ),
+        Positioned(
+            top: 110,
+            left: 0,
+            right: 0,
+            child: Padding(
+              padding: EdgeInsets.all(10),
+              child: Container(
+                height: 50,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.green, width: 4),
+                    borderRadius: BorderRadius.circular(2),
+                    color: Colors.white
+                ),
+                child: TextField(
+                  decoration: (
+                      InputDecoration(
+                          icon: Icon(Icons.map),
+                          labelText: "Destino",
+                          suffixIcon: Icon(Icons.keyboard_voice)
+                      )
+                  ),
+                ),
+              ),
+            )
+        ),
+            Positioned(
+              right: 0,
+              left: 0,
+              bottom: 0,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20)),
+                onPressed: (){print("abrir");},
+                child: Text("Chamar"),
+              )
+            )
+          ]
+        )
+      )
 
-      body: TextField(
+      /*TextField(
         decoration: (
             InputDecoration(
                 icon: Icon(Icons.map),
@@ -115,7 +204,7 @@ class _ClientAreaState extends State<ClientArea> {
                 suffixIcon: Icon(Icons.error)
             )
         ),
-      ),
+      ),*/
 
       /*Container(
         child: GoogleMap(

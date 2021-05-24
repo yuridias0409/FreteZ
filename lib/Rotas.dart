@@ -4,7 +4,7 @@ import 'package:fretez/Views/Register/RegisterStep0.dart';
 import 'package:fretez/Views/Register/RegisterStep1.dart';
 import 'package:fretez/Views/Register/RegisterStep2.dart';
 import 'package:fretez/Views/Register/RegisterStep4.dart';
-
+import 'package:fretez/Views/Map/Map.dart';
 
 class Rotas {
   static Route<dynamic> gerarRotas(RouteSettings settings){
@@ -28,6 +28,10 @@ class Rotas {
       case "/registerstep4":
         return MaterialPageRoute(
             builder: (_) => RegisterStep4()
+        );
+      case "/clientarea":
+        return MaterialPageRoute(
+            builder: (_) => ClientArea()
         );
     }
   }

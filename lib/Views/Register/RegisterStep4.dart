@@ -4,7 +4,7 @@ import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:fretez/Views/Register/RegisterStep3.dart';
-import 'file:///D:/AndroidStudioProjects/fretez/lib/Views/Login.dart';
+import 'package:fretez/Views/Login/Login.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class RegisterStep4 extends StatefulWidget {
