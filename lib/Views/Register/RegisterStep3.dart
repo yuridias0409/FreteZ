@@ -1,74 +1,49 @@
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
-import 'package:flutter_masked_text/flutter_masked_text.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:fretez/Model/Usuario.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegisterStep3 extends StatefulWidget {
-  final String tellUser;
+  final Usuario usuario;
 
-  RegisterStep3({Key key, @required this.tellUser}) : super(key: key);
+  RegisterStep3({Key key, @required this.usuario}) : super(key: key);
 
   @override
   _RegisterStep3State createState() => _RegisterStep3State();
 }
 
 class _RegisterStep3State extends State<RegisterStep3> {
-  TextEditingController _controllerVerifica = TextEditingController();
-
+  bool _tipoUsuario = false;
   //valida campos
   String _mensagemErro = "";
-  String _verificationId = "";
-  //fim valida campos
 
-  _mandaCodigo() async {
+
+
+  _validarCampos() {
+    widget.usuario.isMotorista = _tipoUsuario;
     FirebaseAuth auth = FirebaseAuth.instance;
-    String phoneUser = '+55 '+widget.tellUser;
-    await FirebaseAuth.instance.verifyPhoneNumber(
-      phoneNumber: phoneUser,
-      timeout: const Duration(seconds: 60),
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        // ANDROID ONLY!
-        // Sign the user in (or link) with the auto-generated credential
-        await auth.signInWithCredential(credential);
-        Navigator.pushNamed(context, "/registerstep4");
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        if (e.code == 'invalid-phone-number') {
-          setState(() {
-            _mensagemErro = "Telefone inválido";
-          });
-        }
-        // Handle other errors
-      },
-      codeSent: (String verificationId, int resendToken) async {
-        setState(() {
-          _verificationId = verificationId;
-        });
-        // Update the UI - wait for the user to enter the SMS code
-        //String smsCode = _controllerVerifica.text.trim();
-        // Create a PhoneAuthCredential with the code
-        //PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode);
-        // Sign the user in (or link) with the credential
-        //await auth.signInWithCredential(phoneAuthCredential);
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {
-        Navigator.pushNamed(context, "/registerstep2");
-      },
-    );
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    auth.createUserWithEmailAndPassword(
+        email: widget.usuario.email,
+        password: widget.usuario.password
+    ).then((firebaseUser){
+      db.collection("usuarios")
+          .doc(firebaseUser.user.uid)
+          .set(widget.usuario.toMap());
+      switch(_tipoUsuario){
+        case true:
+          Navigator.pushNamedAndRemoveUntil(context, "/painelMotorista", (_) => false);
+          break;
+        case false:
+          Navigator.pushNamedAndRemoveUntil(context, "/painelPassageiro", (_) => false);
+          break;
+      }
+    }).catchError((error){
+      _mensagemErro = "Erro ao cadastrar o usuário";
+    });
   }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    _mandaCodigo();
-  }
+  //Fim valida campos
 
   @override
   Widget build(BuildContext context) {
@@ -92,67 +67,46 @@ class _RegisterStep3State extends State<RegisterStep3> {
                 ),
                 Center(
                   child: Text(
-                    "Código enviado para o número",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                ),
-                Padding(padding: EdgeInsets.only(bottom: 5)),
-                Center(
-                  child: Text(
-                    widget.tellUser,
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                ),
-                Padding(padding: EdgeInsets.only(bottom: 10)),
-                Center(
-                  child: Text(
                     _mensagemErro,
                     style: TextStyle(color: Colors.red, fontSize: 22),
                   ),
                 ),
                 Padding(
-                    padding: EdgeInsets.only(top: 50),
-                    child: TextField(
-                      autofocus: true,
-                      controller: _controllerVerifica,
-                      keyboardType: TextInputType.number,
-                      maxLength: 6,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: "Código de verificação",
-                        hintStyle: TextStyle(
+                  padding: EdgeInsets.only(bottom: 30, top: 50),
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        "Deseja ser motorista?",
+                        style: TextStyle(
+                          fontSize: 20,
                           color: Colors.white,
                         ),
-                        border: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white)),
-                        enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white)),
                       ),
-                    )),
+                      Switch(
+                        value: _tipoUsuario,
+                        onChanged: (bool valor) {
+                          setState(() {
+                            _tipoUsuario = valor;
+                          });
+                        },
+                      )
+                    ],
+                  ),
+                ),
                 Padding(
                   padding: EdgeInsets.only(top: 30, bottom: 30),
                   child: Center(
                     child: RaisedButton(
                       color: Color(0xff6DF893),
                       child: Text(
-                        "Próximo",
+                        "Cadastrar",
                         style: TextStyle(fontSize: 25),
                       ),
                       padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(32)),
-                      onPressed: () async {
-                        FirebaseAuth auth = FirebaseAuth.instance;
-                        String smsCode = _controllerVerifica.text.trim();
-                        // Create a PhoneAuthCredential with the code
-                        PhoneAuthCredential phoneAuthCredential = PhoneAuthProvider.credential(verificationId: _verificationId, smsCode: smsCode);
-                        // Sign the user in (or link) with the credential
-                        await auth.signInWithCredential(phoneAuthCredential);
-                        Navigator.pushNamed(context, "/registerstep4");
+                      onPressed: () {
+                        _validarCampos();
                       },
                     ),
                   ),

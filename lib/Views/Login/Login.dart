@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
-import 'package:footer/footer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fretez/Model/Usuario.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -15,7 +15,43 @@ class _LoginState extends State<Login> {
 
   //valida campos
   String _mensagemErro = "";
+  _validarCampos(){
+    if(_controllerEmail.text.isNotEmpty && _controllerSenha.text.isNotEmpty){
+      _logarUsuario();
+    } else{
+      _mensagemErro = "Preencha todos os campos!";
+    }
+  }
   //fim valida campos
+
+  _redirecionaPorTipoDeUsuario(String idUsuario) async{
+    FirebaseFirestore db = FirebaseFirestore.instance;
+
+    DocumentSnapshot snapshot = await db.collection("usuarios")
+      .doc(idUsuario)
+      .get();
+
+    Map<String, dynamic> dados = snapshot.data();
+    bool tipoUsuario = dados["isMotorist"];
+
+    if(tipoUsuario){
+      Navigator.pushReplacementNamed(context, "/painelMotorista");
+    } else{
+      Navigator.pushReplacementNamed(context, "/painelPassageiro");
+    }
+  }
+
+  _logarUsuario(){
+    FirebaseAuth auth = FirebaseAuth.instance;
+    auth.signInWithEmailAndPassword(
+        email: _controllerEmail.text, 
+        password: Usuario().hashPassword(_controllerSenha.text)
+    ).then((firebaseUser){
+      _redirecionaPorTipoDeUsuario(firebaseUser.user.uid);
+    }).catchError((error){
+      _mensagemErro = "Erro ao autenticar usuário";
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +172,7 @@ class _LoginState extends State<Login> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(32)),
                           onPressed: () {
-                            Navigator.pushNamed(context, "/clientarea");
+                            _validarCampos();
                           },
                         ),
                       ],

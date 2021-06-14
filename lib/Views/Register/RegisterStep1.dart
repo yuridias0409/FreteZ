@@ -3,10 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
+import 'package:fretez/Model/Usuario.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:cpfcnpj/cpfcnpj.dart';
 
+import 'RegisterStep2.dart';
+
 class RegisterStep1 extends StatefulWidget {
+  final Usuario usuario;
+
+  RegisterStep1({Key key, @required this.usuario}) : super(key: key);
+
   @override
   _RegisterStep1State createState() => _RegisterStep1State();
 }
@@ -19,7 +26,12 @@ class _RegisterStep1State extends State<RegisterStep1> {
   _validarCampos(){
     if(_controllerCPF.text.isNotEmpty){
       if(CPF.isValid(_controllerCPF.text)){
-        Navigator.pushNamed(context, "/registerstep2");
+        widget.usuario.cpf = _controllerCPF.text;
+
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return RegisterStep2(usuario: widget.usuario);
+        }));
+
       } else{
         setState(() {
           _mensagemErro = "CPF inválido";

@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
-import 'package:flutter_masked_text/flutter_masked_text.dart';
+import 'package:fretez/Model/Usuario.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:cpfcnpj/cpfcnpj.dart';
+
+import 'RegisterStep1.dart';
 
 class RegisterStep0 extends StatefulWidget {
   @override
@@ -14,11 +13,20 @@ class RegisterStep0 extends StatefulWidget {
 class _RegisterStep0State extends State<RegisterStep0> {
   TextEditingController _controllerNome = TextEditingController();
   TextEditingController _controllerIdade = TextEditingController();
+  TextEditingController _controllerEmail = TextEditingController();
   //valida campos
   String _mensagemErro = "";
   _validarCampos(){
-    if(_controllerNome.text.isNotEmpty && _controllerIdade.text.isNotEmpty){
-      Navigator.pushNamed(context, "/registerstep1");
+    if(_controllerNome.text.isNotEmpty && _controllerIdade.text.isNotEmpty && _controllerEmail.text.isNotEmpty){
+      Usuario _usuario = new Usuario();
+      _usuario.name = _controllerNome.text;
+      _usuario.date_of_birth = _controllerIdade.text;
+      _usuario.email = _controllerEmail.text;
+
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return RegisterStep1(usuario: _usuario);
+      }));
+
     } else{
       if(_controllerIdade.text.isEmpty){
         setState(() {
@@ -90,6 +98,25 @@ class _RegisterStep0State extends State<RegisterStep0> {
                   ),
                   decoration: InputDecoration(
                     hintText: "Quando você nasceu?",
+                    hintStyle: TextStyle(
+                      color: Colors.white,
+                    ),
+                    border: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white)),
+                    enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white)),
+                  ),
+                ),
+                Padding(padding: EdgeInsets.only(top: 30)),
+                TextField(
+                  controller: _controllerEmail,
+                  keyboardType: TextInputType.emailAddress,
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: "Qual é seu email?",
                     hintStyle: TextStyle(
                       color: Colors.white,
                     ),

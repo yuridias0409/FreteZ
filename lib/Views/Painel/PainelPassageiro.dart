@@ -3,22 +3,21 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'package:fretez/Widgets/SideMenu.dart';
 
-void main() => runApp(ClientArea());
+void main() => runApp(PainelPassageiro());
 
-class ClientArea extends StatefulWidget {
+class PainelPassageiro extends StatefulWidget {
   //const ClientArea({Key key}) : super(key: key);
 
   @override
-  _ClientAreaState createState() => _ClientAreaState();
+  _PainelPassageiroState createState() => _PainelPassageiroState();
 }
 
-class _ClientAreaState extends State<ClientArea> {
+class _PainelPassageiroState extends State<PainelPassageiro> {
 
   Completer<GoogleMapController> _controller = Completer();
   CameraPosition _cameraPosition = CameraPosition(target: LatLng(-23.563999, -46.653256));
@@ -35,7 +34,6 @@ class _ClientAreaState extends State<ClientArea> {
 
   _pickMenuItem( String choice ) {
     if(choice == "Deslogar") _logoff();
-
   }
 
   _onMapCreated(GoogleMapController controller){

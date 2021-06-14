@@ -3,46 +3,51 @@ import 'package:flutter/material.dart';
 import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
-import 'package:fretez/Views/Register/RegisterStep3.dart';
-import 'package:fretez/Views/Login/Login.dart';
+import 'package:fretez/Model/Usuario.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:cpfcnpj/cpfcnpj.dart';
+
+import 'RegisterStep3.dart';
 
 class RegisterStep2 extends StatefulWidget {
+  final Usuario usuario;
+
+  RegisterStep2({Key key, @required this.usuario}) : super(key: key);
+
   @override
   _RegisterStep2State createState() => _RegisterStep2State();
 }
 
 class _RegisterStep2State extends State<RegisterStep2> {
-  TextEditingController _controllerTell = TextEditingController();
-
+  TextEditingController _controllerSenha = TextEditingController();
+  TextEditingController _controllerConfirmarSenha = TextEditingController();
   //valida campos
   String _mensagemErro = "";
-  _validarCampos() {
-    RegExp regex = new RegExp(r"(\(?\d{2}\)?\s)?(\d{4,5}\-\d{4})");
-    if (_controllerTell.text.isNotEmpty) {
-      if (regex.hasMatch(_controllerTell.text)) {
+
+  _validarCampos(){
+    if(_controllerSenha.text.isNotEmpty && _controllerConfirmarSenha.text.isNotEmpty){
+      if(_controllerSenha.text == _controllerConfirmarSenha.text){
+        widget.usuario.password = widget.usuario.hashPassword(_controllerSenha.text);
+
         Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return RegisterStep3(tellUser: _controllerTell.text);
+          return RegisterStep3(usuario: widget.usuario);
         }));
+
       } else {
-        setState(() {
-          _mensagemErro = "Número inválido";
-        });
+        _mensagemErro = "Senhas não conferem";
       }
     } else{
-      setState(() {
-        _mensagemErro = "Digite um telefone";
-      });
+      _mensagemErro = "Digite as senhas!";
     }
   }
-  //fim valida campos
+  //Fim valida campos
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     var widthScreen = size.width;
     var heightScreen = size.height;
-    var maskFormatterTell = new MaskTextInputFormatter(mask: '## #####-####', filter: { "#": RegExp(r'[0-9]') });
+    var maskFormatterData = new MaskTextInputFormatter(mask: '##/##/####', filter: {"#": RegExp(r'[0-9]')});
     return Scaffold(
       body: Container(
         width: widthScreen,
@@ -65,18 +70,18 @@ class _RegisterStep2State extends State<RegisterStep2> {
                   ),
                 ),
                 Padding(
-                    padding: EdgeInsets.only(bottom: 30, top: 15),
+                    padding: EdgeInsets.only(bottom: 30, top: 50),
                     child: TextField(
                       autofocus: true,
-                      controller: _controllerTell,
-                      inputFormatters: [maskFormatterTell],
-                      keyboardType: TextInputType.phone,
+                      controller: _controllerSenha,
+                      keyboardType: TextInputType.text,
+                      obscureText: true,
                       style: TextStyle(
                         fontSize: 20,
                         color: Colors.white,
                       ),
                       decoration: InputDecoration(
-                        hintText: "Telefone",
+                        hintText: "Digite sua senha",
                         hintStyle: TextStyle(
                           color: Colors.white,
                         ),
@@ -85,7 +90,27 @@ class _RegisterStep2State extends State<RegisterStep2> {
                         enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.white)),
                       ),
-                    )
+                    ),
+                ),
+                TextField(
+                  autofocus: true,
+                  controller: _controllerConfirmarSenha,
+                  keyboardType: TextInputType.text,
+                  obscureText: true,
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: "Confirme sua senha!",
+                    hintStyle: TextStyle(
+                      color: Colors.white,
+                    ),
+                    border: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white)),
+                    enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white)),
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 30, bottom: 30),
