@@ -1,8 +1,14 @@
 import 'dart:async';
-import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fretez/Model/Destino.dart';
+import 'package:fretez/Model/Requisicao.dart';
+import 'package:fretez/Model/Usuario.dart';
+import 'package:fretez/Utils/StatusRequisicao.dart';
+import 'package:fretez/Utils/UsuarioFirebase.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -18,9 +24,10 @@ class PainelPassageiro extends StatefulWidget {
 }
 
 class _PainelPassageiroState extends State<PainelPassageiro> {
-
+  TextEditingController _controllerDestino = TextEditingController();
   Completer<GoogleMapController> _controller = Completer();
   CameraPosition _cameraPosition = CameraPosition(target: LatLng(-23.563999, -46.653256));
+  Set<Marker> _marcadores = {};
 
   List<String> menuItems = [
     "Configurações", "Deslogar"
@@ -73,11 +80,47 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
     );
     geolocator.getPositionStream( locationOptions ).listen((Position position) {
       _cameraPosition = CameraPosition(
-          target: LatLng(-23.563999, -46.653256),
-          zoom: 18
+          target: LatLng(position.latitude, position.longitude),
+          zoom: 19
       );
       _moveCamera(_cameraPosition);
     });
+  }
+
+  //Utilizar somente dps da requisição ser feita
+  _exibirMarcadorEntrega(Position local) async{
+    double pixelRatio = MediaQuery.of(context).devicePixelRatio;
+
+    BitmapDescriptor.fromAssetImage(
+        ImageConfiguration(devicePixelRatio: pixelRatio),
+        "imagens/entrega.png"
+    ).then((BitmapDescriptor icone){
+      Marker marcadorEntrega = Marker(
+          markerId: MarkerId("marcador-entrega"),
+          position: LatLng(local.latitude, local.longitude),
+          infoWindow: InfoWindow(
+              title: "Meu Local"
+          ),
+          icon: icone
+      );
+      setState(() {
+        _marcadores.add(marcadorEntrega);
+      });
+    });
+  }
+
+  _salvarRequisicao(Destino destino) async{
+    Usuario entrega = await UsuarioFirebase.getDadosUsuarioLogado();
+
+    Requisicao requisicao = Requisicao();
+    requisicao.destino = destino;
+    requisicao.entrega = entrega;
+    requisicao.status = StatusRequisicao.AGUARDANDO;
+
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    db.collection("requisicoes")
+      .add(requisicao.toMap());
+
   }
 
   _openMenu() { // to-do: open delivery options menu
@@ -86,6 +129,55 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
         padding: EdgeInsets.all(10),
       ),
     );
+  }
+
+  _chamarEntregador() async {
+    String enderecoDestino = _controllerDestino.text;
+
+    if(enderecoDestino.isNotEmpty){
+      List<Placemark> listaEnderecos = await Geolocator()
+          .placemarkFromAddress(enderecoDestino);
+      if(listaEnderecos != null && listaEnderecos.length > 0){
+        Placemark endereco = listaEnderecos[0];
+        Destino destino = Destino();
+        destino.cidade = endereco.subAdministrativeArea;
+        destino.cep = endereco.postalCode;
+        destino.bairro = endereco.subLocality;
+        destino.rua = endereco.thoroughfare;
+        destino.numero = endereco.subThoroughfare;
+        destino.latitude = endereco.position.latitude;
+        destino.longitude = endereco.position.longitude;
+
+        String enderecoConfirmacao;
+        enderecoConfirmacao = "\n Cidade: "+ destino.cidade;
+        enderecoConfirmacao += "\n Rua: "+ destino.rua + ", " + destino.numero;
+        enderecoConfirmacao += "\n Bairro: "+ destino.bairro;
+
+        showDialog(
+            context: context,
+            builder: (context){
+              return AlertDialog(
+                title: Text("Confirmação de endereço"),
+                content: Text(enderecoConfirmacao),
+                contentPadding: EdgeInsets.all(16),
+                actions: <Widget>[
+                  FlatButton(
+                    child: Text("Cancelar", style: TextStyle(color: Colors.red),),
+                    onPressed: () => Navigator.pop(context)
+                  ),
+                  FlatButton(
+                      child: Text("Confirmar", style: TextStyle(color: Colors.green),),
+                      onPressed: () {
+                        _salvarRequisicao(destino);
+                        Navigator.pop(context);
+                      }
+                  )
+                ],
+              );
+            }
+        );
+      }
+    }
   }
 
   @override
@@ -126,6 +218,7 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
               onMapCreated: _onMapCreated,
               myLocationEnabled: true,
               myLocationButtonEnabled: true,
+              markers: _marcadores,
             ),
             Positioned(
               //
@@ -169,6 +262,7 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
                     color: Colors.white
                 ),
                 child: TextField(
+                  controller: _controllerDestino,
                   decoration: (
                       InputDecoration(
                           icon: Icon(Icons.map),
@@ -184,10 +278,19 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
               right: 0,
               left: 0,
               bottom: 0,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(textStyle: const TextStyle(fontSize: 20)),
-                onPressed: (){print("abrir");},
-                child: Text("Chamar"),
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: RaisedButton(
+                  child: Text(
+                    "Chamar Entregador",
+                    style: TextStyle(color: Colors.black, fontSize: 20),
+                  ),
+                  color: Color(0xff6df893),
+                  padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
+                  onPressed: (){
+                    _chamarEntregador();
+                  },
+                ),
               )
             )
           ]
