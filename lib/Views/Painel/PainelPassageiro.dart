@@ -26,12 +26,17 @@ class PainelPassageiro extends StatefulWidget {
 class _PainelPassageiroState extends State<PainelPassageiro> {
   TextEditingController _controllerDestino = TextEditingController();
   Completer<GoogleMapController> _controller = Completer();
-  CameraPosition _cameraPosition = CameraPosition(target: LatLng(-23.563999, -46.653256));
+  CameraPosition _cameraPosition =
+      CameraPosition(target: LatLng(-23.563999, -46.653256));
   Set<Marker> _marcadores = {};
 
-  List<String> menuItems = [
-    "Configurações", "Deslogar"
-  ];
+  //Controles exibição na tela
+  bool _exibirCaixaEnderecoDestino = true;
+  String _textoBotao = "Chamar Entregador";
+  Color _corBotao = Color(0xff6df893);
+  Function _funcaoBotao;
+
+  List<String> menuItems = ["Configurações", "Deslogar"];
 
   _logoff() async {
     FirebaseAuth auth = FirebaseAuth.instance;
@@ -39,77 +44,63 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
     Navigator.pushReplacementNamed(context, '/');
   }
 
-  _pickMenuItem( String choice ) {
-    if(choice == "Deslogar") _logoff();
+  _pickMenuItem(String choice) {
+    if (choice == "Deslogar") _logoff();
   }
 
-  _onMapCreated(GoogleMapController controller){
-    _controller.complete( controller );
+  _onMapCreated(GoogleMapController controller) {
+    _controller.complete(controller);
   }
 
   _moveCamera(CameraPosition position) async {
     GoogleMapController controller = await _controller.future;
-    controller.animateCamera(
-      CameraUpdate.newCameraPosition(
-        position
-      )
-    );
+    controller.animateCamera(CameraUpdate.newCameraPosition(position));
   }
 
   _getLastKnownLocation() async {
-    Position position = await Geolocator().getLastKnownPosition(
-      desiredAccuracy: LocationAccuracy.high
-    );
+    Position position = await Geolocator()
+        .getLastKnownPosition(desiredAccuracy: LocationAccuracy.high);
     setState(() {
-      if(position != null){
+      if (position != null) {
         _cameraPosition = CameraPosition(
-            target: LatLng(position.latitude, position.longitude),
-            zoom: 19
-        );
+            target: LatLng(position.latitude, position.longitude), zoom: 19);
 
         _moveCamera(_cameraPosition);
       }
     });
   }
 
-  _addLocationListener(){
+  _addLocationListener() {
     var geolocator = Geolocator();
-    var locationOptions = LocationOptions(
-      accuracy: LocationAccuracy.high,
-      distanceFilter: 10
-    );
-    geolocator.getPositionStream( locationOptions ).listen((Position position) {
+    var locationOptions =
+        LocationOptions(accuracy: LocationAccuracy.high, distanceFilter: 10);
+    geolocator.getPositionStream(locationOptions).listen((Position position) {
       _cameraPosition = CameraPosition(
-          target: LatLng(position.latitude, position.longitude),
-          zoom: 19
-      );
+          target: LatLng(position.latitude, position.longitude), zoom: 19);
       _moveCamera(_cameraPosition);
     });
   }
 
   //Utilizar somente dps da requisição ser feita
-  _exibirMarcadorEntrega(Position local) async{
+  _exibirMarcadorEntrega(Position local) async {
     double pixelRatio = MediaQuery.of(context).devicePixelRatio;
 
     BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(devicePixelRatio: pixelRatio),
-        "imagens/entrega.png"
-    ).then((BitmapDescriptor icone){
+            ImageConfiguration(devicePixelRatio: pixelRatio),
+            "imagens/entrega.png")
+        .then((BitmapDescriptor icone) {
       Marker marcadorEntrega = Marker(
           markerId: MarkerId("marcador-entrega"),
           position: LatLng(local.latitude, local.longitude),
-          infoWindow: InfoWindow(
-              title: "Meu Local"
-          ),
-          icon: icone
-      );
+          infoWindow: InfoWindow(title: "Meu Local"),
+          icon: icone);
       setState(() {
         _marcadores.add(marcadorEntrega);
       });
     });
   }
 
-  _salvarRequisicao(Destino destino) async{
+  _salvarRequisicao(Destino destino) async {
     Usuario entrega = await UsuarioFirebase.getDadosUsuarioLogado();
 
     Requisicao requisicao = Requisicao();
@@ -118,12 +109,24 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
     requisicao.status = StatusRequisicao.AGUARDANDO;
 
     FirebaseFirestore db = FirebaseFirestore.instance;
+    //Salvar Aquisição
     db.collection("requisicoes")
-      .add(requisicao.toMap());
+        .doc(requisicao.id)
+        .set(requisicao.toMap());
 
+    //Salvar requisição ativa
+    Map<String, dynamic> dadosRequisicaoAtiva = {};
+    dadosRequisicaoAtiva["id_requisicao"] = requisicao.id;
+    dadosRequisicaoAtiva["id_usuario"] = entrega.userid;
+    dadosRequisicaoAtiva["status"] = StatusRequisicao.AGUARDANDO;
+
+    db.collection("requisicao_ativa")
+      .doc(entrega.userid)
+      .set(dadosRequisicaoAtiva);
   }
 
-  _openMenu() { // to-do: open delivery options menu
+  _openMenu() {
+    // to-do: open delivery options menu
     return Container(
       child: Padding(
         padding: EdgeInsets.all(10),
@@ -134,10 +137,10 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
   _chamarEntregador() async {
     String enderecoDestino = _controllerDestino.text;
 
-    if(enderecoDestino.isNotEmpty){
-      List<Placemark> listaEnderecos = await Geolocator()
-          .placemarkFromAddress(enderecoDestino);
-      if(listaEnderecos != null && listaEnderecos.length > 0){
+    if (enderecoDestino.isNotEmpty) {
+      List<Placemark> listaEnderecos =
+          await Geolocator().placemarkFromAddress(enderecoDestino);
+      if (listaEnderecos != null && listaEnderecos.length > 0) {
         Placemark endereco = listaEnderecos[0];
         Destino destino = Destino();
         destino.cidade = endereco.subAdministrativeArea;
@@ -149,35 +152,89 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
         destino.longitude = endereco.position.longitude;
 
         String enderecoConfirmacao;
-        enderecoConfirmacao = "\n Cidade: "+ destino.cidade;
-        enderecoConfirmacao += "\n Rua: "+ destino.rua + ", " + destino.numero;
-        enderecoConfirmacao += "\n Bairro: "+ destino.bairro;
+        enderecoConfirmacao = "\n Cidade: " + destino.cidade;
+        enderecoConfirmacao += "\n Rua: " + destino.rua + ", " + destino.numero;
+        enderecoConfirmacao += "\n Bairro: " + destino.bairro;
 
         showDialog(
             context: context,
-            builder: (context){
+            builder: (context) {
               return AlertDialog(
                 title: Text("Confirmação de endereço"),
                 content: Text(enderecoConfirmacao),
                 contentPadding: EdgeInsets.all(16),
                 actions: <Widget>[
                   FlatButton(
-                    child: Text("Cancelar", style: TextStyle(color: Colors.red),),
-                    onPressed: () => Navigator.pop(context)
-                  ),
+                      child: Text(
+                        "Cancelar",
+                        style: TextStyle(color: Colors.red),
+                      ),
+                      onPressed: () => Navigator.pop(context)),
                   FlatButton(
-                      child: Text("Confirmar", style: TextStyle(color: Colors.green),),
+                      child: Text(
+                        "Confirmar",
+                        style: TextStyle(color: Colors.green),
+                      ),
                       onPressed: () {
                         _salvarRequisicao(destino);
                         Navigator.pop(context);
-                      }
-                  )
+                      })
                 ],
               );
-            }
-        );
+            });
       }
     }
+  }
+
+  _statusUberNaoChamado(){
+    _exibirCaixaEnderecoDestino = true;
+    _alterarBotaoPrincipal("Chamar Entregador", Color(0xff6df893), (){ _chamarEntregador(); });
+  }
+
+  _statusAguardando(){
+    _exibirCaixaEnderecoDestino = false;
+    _alterarBotaoPrincipal("Cancelar", Colors.redAccent, (){ _cancelarEntregador(); });
+  }
+
+  _cancelarEntregador(){
+
+  }
+
+  _alterarBotaoPrincipal(String texto, Color cor, Function funcao){
+    setState(() {
+      _textoBotao = texto;
+      _corBotao = cor;
+      _funcaoBotao = funcao;
+    });
+  }
+
+  _adicionarListenerRequisicaoAtiva() async {
+    User firebaseUser = await UsuarioFirebase.getUsuarioAtual();
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    db.collection("requisicao_ativa")
+      .doc(firebaseUser.uid)
+      .snapshots()
+      .listen((snapshot) {
+        if(snapshot.data != null){
+          Map<String, dynamic> dados = snapshot.data();
+          String status = dados["status"];
+          String idRequisicao = dados["id_requisicao"];
+
+          switch(status){
+            case StatusRequisicao.AGUARDANDO:
+              _statusAguardando();
+              break;
+            case StatusRequisicao.A_CAMINHO:
+              break;
+            case StatusRequisicao.VIAGEM:
+              break;
+            case StatusRequisicao.FINALIZADA:
+              break;
+          }
+        } else{
+          _statusUberNaoChamado();
+        }
+      });
   }
 
   @override
@@ -186,12 +243,13 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
     super.initState();
     _getLastKnownLocation();
     _addLocationListener();
+    _adicionarListenerRequisicaoAtiva();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      /*appBar: AppBar(
+        /*appBar: AppBar(
         title: Text('Client'),
         backgroundColor: Colors.green,
         actions: <Widget>[
@@ -208,96 +266,86 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
           )
         ],
       ),*/
-      endDrawer: SideMenu(),
-      body: Container(
-        child: Stack(
-          children: <Widget>[
-            GoogleMap(
-              mapType: MapType.normal,
-              initialCameraPosition: _cameraPosition,
-              onMapCreated: _onMapCreated,
-              myLocationEnabled: true,
-              myLocationButtonEnabled: true,
-              markers: _marcadores,
+        endDrawer: SideMenu(),
+        body: Container(
+            child: Stack(children: <Widget>[
+          GoogleMap(
+            mapType: MapType.normal,
+            initialCameraPosition: _cameraPosition,
+            onMapCreated: _onMapCreated,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            markers: _marcadores,
+          ),
+          Visibility(
+            visible: _exibirCaixaEnderecoDestino,
+            child: Stack(
+              children: <Widget>[
+                Positioned(
+                    //
+                    top: 50,
+                    left: 0,
+                    right: 0,
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Container(
+                        height: 50,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.green, width: 4),
+                            borderRadius: BorderRadius.circular(2),
+                            color: Colors.white),
+                        child: TextField(
+                          decoration: (InputDecoration(
+                              icon: Icon(Icons.location_pin),
+                              labelText: "Ponto de partida",
+                              suffixIcon: Icon(Icons.keyboard_voice))),
+                        ),
+                      ),
+                    )),
+                Positioned(
+                    top: 110,
+                    left: 0,
+                    right: 0,
+                    child: Padding(
+                      padding: EdgeInsets.all(10),
+                      child: Container(
+                        height: 50,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.green, width: 4),
+                            borderRadius: BorderRadius.circular(2),
+                            color: Colors.white),
+                        child: TextField(
+                          controller: _controllerDestino,
+                          decoration: (InputDecoration(
+                              icon: Icon(Icons.map),
+                              labelText: "Destino",
+                              suffixIcon: Icon(Icons.keyboard_voice))),
+                        ),
+                      ),
+                    ))
+              ],
             ),
-            Positioned(
-              //
-              top: 50,
-              left: 0,
-              right: 0,
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: Container(
-                  height: 50,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.green, width: 4),
-                    borderRadius: BorderRadius.circular(2),
-                    color: Colors.white
-                  ),
-                  child: TextField(
-                    decoration: (
-                        InputDecoration(
-                            icon: Icon(Icons.location_pin),
-                            labelText: "Ponto de partida",
-                            suffixIcon: Icon(Icons.keyboard_voice)
-                        )
-                    ),
-                  ),
-                ),
-              )
-            ),
-        Positioned(
-            top: 110,
-            left: 0,
-            right: 0,
-            child: Padding(
-              padding: EdgeInsets.all(10),
-              child: Container(
-                height: 50,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                    border: Border.all(color: Colors.green, width: 4),
-                    borderRadius: BorderRadius.circular(2),
-                    color: Colors.white
-                ),
-                child: TextField(
-                  controller: _controllerDestino,
-                  decoration: (
-                      InputDecoration(
-                          icon: Icon(Icons.map),
-                          labelText: "Destino",
-                          suffixIcon: Icon(Icons.keyboard_voice)
-                      )
-                  ),
-                ),
-              ),
-            )
-        ),
-            Positioned(
+          ),
+          Positioned(
               right: 0,
               left: 0,
               bottom: 0,
               child: Padding(
                 padding: EdgeInsets.all(10),
                 child: RaisedButton(
-                  child: Text(
-                    "Chamar Entregador",
-                    style: TextStyle(color: Colors.black, fontSize: 20),
-                  ),
-                  color: Color(0xff6df893),
-                  padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
-                  onPressed: (){
-                    _chamarEntregador();
-                  },
-                ),
-              )
-            )
-          ]
-        )
-      )
+                    child: Text(
+                      _textoBotao,
+                      style: TextStyle(color: Colors.black, fontSize: 20),
+                    ),
+                    color: _corBotao,
+                    padding: EdgeInsets.fromLTRB(32, 16, 32, 16),
+                    onPressed: _funcaoBotao),
+              ))
+        ]))
 
-      /*TextField(
+        /*TextField(
         decoration: (
             InputDecoration(
                 icon: Icon(Icons.map),
@@ -307,13 +355,13 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
         ),
       ),*/
 
-      /*Container(
+        /*Container(
         child: GoogleMap(
           mapType: MapType.normal,
           onMapCreated: _onMapCreated,
           myLocationEnabled: true,
         ),
       ),*/
-    );
+        );
   }
 }
