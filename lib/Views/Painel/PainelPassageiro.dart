@@ -31,6 +31,9 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
   Set<Marker> _marcadores = {};
   String _idRequisicao;
 
+  //Salva local do passageiro
+  Position _localRequisitante;
+
   //Controles exibição na tela
   bool _exibirCaixaEnderecoDestino = true;
   String _textoBotao = "Chamar Entregador";
@@ -65,7 +68,7 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
       if (position != null) {
         _cameraPosition = CameraPosition(
             target: LatLng(position.latitude, position.longitude), zoom: 19);
-
+        _localRequisitante = position;
         _moveCamera(_cameraPosition);
       }
     });
@@ -78,31 +81,15 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
     geolocator.getPositionStream(locationOptions).listen((Position position) {
       _cameraPosition = CameraPosition(
           target: LatLng(position.latitude, position.longitude), zoom: 19);
+      _localRequisitante = position;
       _moveCamera(_cameraPosition);
-    });
-  }
-
-  //Utilizar somente dps da requisição ser feita
-  _exibirMarcadorEntrega(Position local) async {
-    double pixelRatio = MediaQuery.of(context).devicePixelRatio;
-
-    BitmapDescriptor.fromAssetImage(
-            ImageConfiguration(devicePixelRatio: pixelRatio),
-            "imagens/entrega.png")
-        .then((BitmapDescriptor icone) {
-      Marker marcadorEntrega = Marker(
-          markerId: MarkerId("marcador-entrega"),
-          position: LatLng(local.latitude, local.longitude),
-          infoWindow: InfoWindow(title: "Meu Local"),
-          icon: icone);
-      setState(() {
-        _marcadores.add(marcadorEntrega);
-      });
     });
   }
 
   _salvarRequisicao(Destino destino) async {
     Usuario entrega = await UsuarioFirebase.getDadosUsuarioLogado();
+    entrega.latitude = _localRequisitante.latitude;
+    entrega.longitude = _localRequisitante.longitude;
 
     Requisicao requisicao = Requisicao();
     requisicao.destino = destino;
@@ -197,6 +184,11 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
     _alterarBotaoPrincipal("Cancelar", Colors.redAccent, (){ _cancelarEntregador(); });
   }
 
+  _statusACaminho(){
+    _exibirCaixaEnderecoDestino = false;
+    _alterarBotaoPrincipal("Motorista a Caminho", Colors.grey, null);
+  }
+
   _cancelarEntregador() async {
     User firebaseUser = await UsuarioFirebase.getUsuarioAtual();
     FirebaseFirestore db = FirebaseFirestore.instance;
@@ -236,6 +228,7 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
               _statusAguardando();
               break;
             case StatusRequisicao.A_CAMINHO:
+              _statusACaminho();
               break;
             case StatusRequisicao.VIAGEM:
               break;

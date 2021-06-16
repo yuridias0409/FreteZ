@@ -10,6 +10,15 @@ class Usuario {
   String _password;
   bool _isMotorista;
 
+  double _latitude;
+  double _longitude;
+
+  double get latitude => _latitude;
+
+  set latitude(double value) {
+    _latitude = value;
+  }
+
   Usuario();
 
 
@@ -29,7 +38,9 @@ class Usuario {
       "email": this.email,
       "dateOfBirth": this.date_of_birth,
       "isMotorist": this.isMotorista,
-      "cpf": this.cpf
+      "cpf": this.cpf,
+      "latitude": this.latitude,
+      "longitude": this.longitude
     };
     return map;
   }
@@ -68,5 +79,11 @@ class Usuario {
 
   set isMotorista(bool value) {
     _isMotorista = value;
+  }
+
+  double get longitude => _longitude;
+
+  set longitude(double value) {
+    _longitude = value;
   }
 }

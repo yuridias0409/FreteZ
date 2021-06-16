@@ -22,6 +22,8 @@ class Requisicao {
       "name": this.entrega.name,
       "email": this.entrega.email,
       "isMotorist": this.entrega.isMotorista,
+      "longitude": this.entrega.longitude,
+      "latitude": this.entrega.latitude,
     };
 
     Map<String, dynamic> dadosDestino = {
