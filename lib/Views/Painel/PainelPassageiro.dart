@@ -29,6 +29,7 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
   CameraPosition _cameraPosition =
       CameraPosition(target: LatLng(-23.563999, -46.653256));
   Set<Marker> _marcadores = {};
+  String _idRequisicao;
 
   //Controles exibição na tela
   bool _exibirCaixaEnderecoDestino = true;
@@ -196,8 +197,18 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
     _alterarBotaoPrincipal("Cancelar", Colors.redAccent, (){ _cancelarEntregador(); });
   }
 
-  _cancelarEntregador(){
-
+  _cancelarEntregador() async {
+    User firebaseUser = await UsuarioFirebase.getUsuarioAtual();
+    FirebaseFirestore db = FirebaseFirestore.instance;
+    db.collection("requisicoes")
+      .doc(_idRequisicao)
+      .update({
+        "status": StatusRequisicao.CANCELADA
+      }).then((_){
+        db.collection("requisicao_ativa")
+            .doc(firebaseUser.uid)
+            .delete();
+    });
   }
 
   _alterarBotaoPrincipal(String texto, Color cor, Function funcao){
@@ -215,10 +226,10 @@ class _PainelPassageiroState extends State<PainelPassageiro> {
       .doc(firebaseUser.uid)
       .snapshots()
       .listen((snapshot) {
-        if(snapshot.data != null){
+        if(snapshot.data() != null){
           Map<String, dynamic> dados = snapshot.data();
           String status = dados["status"];
-          String idRequisicao = dados["id_requisicao"];
+          _idRequisicao = dados["id_requisicao"];
 
           switch(status){
             case StatusRequisicao.AGUARDANDO:

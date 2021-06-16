@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-
+import 'package:fretez/Utils/StatusRequisicao.dart';
 import 'package:fretez/Widgets/SideMenu.dart';
 
 void main() => runApp(PainelMotorista());
@@ -19,12 +17,8 @@ class PainelMotorista extends StatefulWidget {
 
 class _PainelMotoristaState extends State<PainelMotorista> {
 
-  Completer<GoogleMapController> _controller = Completer();
-  CameraPosition _cameraPosition = CameraPosition(target: LatLng(-23.563999, -46.653256));
-
-  List<String> menuItems = [
-    "Configurações", "Deslogar"
-  ];
+  final _controller = StreamController<QuerySnapshot>.broadcast();
+  FirebaseFirestore db = FirebaseFirestore.instance;
 
   _logoff() async {
     FirebaseAuth auth = FirebaseAuth.instance;
@@ -37,50 +31,6 @@ class _PainelMotoristaState extends State<PainelMotorista> {
 
   }
 
-  _onMapCreated(GoogleMapController controller){
-    _controller.complete( controller );
-  }
-
-  _moveCamera(CameraPosition position) async {
-    GoogleMapController controller = await _controller.future;
-    controller.animateCamera(
-        CameraUpdate.newCameraPosition(
-            position
-        )
-    );
-  }
-
-  _getLastKnownLocation() async {
-    Position position = await Geolocator().getLastKnownPosition(
-        desiredAccuracy: LocationAccuracy.high
-    );
-    setState(() {
-      if(position != null){
-        _cameraPosition = CameraPosition(
-            target: LatLng(position.latitude, position.longitude),
-            zoom: 19
-        );
-
-        _moveCamera(_cameraPosition);
-      }
-    });
-  }
-
-  _addLocationListener(){
-    var geolocator = Geolocator();
-    var locationOptions = LocationOptions(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 10
-    );
-    geolocator.getPositionStream( locationOptions ).listen((Position position) {
-      _cameraPosition = CameraPosition(
-          target: LatLng(-23.563999, -46.653256),
-          zoom: 18
-      );
-      _moveCamera(_cameraPosition);
-    });
-  }
-
   _openMenu() { // to-do: open delivery options menu
     return Container(
       child: Padding(
@@ -89,19 +39,90 @@ class _PainelMotoristaState extends State<PainelMotorista> {
     );
   }
 
+  Stream<QuerySnapshot> _adicionarListenerRequisicoes(){
+    final stream = db.collection("requisicoes")
+        .where("status", isEqualTo: StatusRequisicao.AGUARDANDO)
+        .snapshots();
+
+    stream.listen((dados) {
+      _controller.add(dados);
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
+    _adicionarListenerRequisicoes();
     super.initState();
-    _getLastKnownLocation();
-    _addLocationListener();
   }
 
   @override
   Widget build(BuildContext context) {
+    var mensagemCarregando = Center(
+      child: Column(
+        children: <Widget>[
+          Text("Carregando requisições"),
+          CircularProgressIndicator()
+        ],
+      ),
+    );
+    var mensagemNaoTemDados = Center(
+      child: Text(
+        "Você não tem nenhuma requisição :(",
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold
+        ),
+      )
+    );
     return Scaffold(
-      body: Container(
-        child: Text("Alo Motorista"),
+      endDrawer: SideMenu(),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _controller.stream,
+        builder: (context, snapshot){
+          switch(snapshot.connectionState){
+            case ConnectionState.none:
+            case ConnectionState.waiting:
+              return mensagemCarregando;
+              break;
+            case ConnectionState.active:
+            case ConnectionState.done:
+              if(snapshot.hasError){
+                return Text("Erro ao carregar dados!");
+              } else{
+                QuerySnapshot querySnapshot = snapshot.data;
+                if(querySnapshot.docs.length == 0){
+                  return mensagemNaoTemDados;
+                } else{
+                  return ListView.separated(
+                      itemCount: querySnapshot.docs.length,
+                      separatorBuilder: (context, indice) => Divider(
+                        height: 2,
+                        color: Color(0xff6df893),
+                      ),
+                      itemBuilder: (context, indice){
+                        List<DocumentSnapshot> requisicoes = querySnapshot.docs.toList();
+
+                        DocumentSnapshot item = requisicoes[indice];
+                        String idRequisicao = item["id"];
+                        String nomeRequisitante = item["entrega"]["name"];
+                        String rua = item["destino"]["rua"];
+                        String numero = item["destino"]["numero"];
+
+                        return ListTile(
+                          title: Text(nomeRequisitante ?? ''),
+                          subtitle: Text("Destino: " + rua + ", " + numero),
+                          onTap: (){
+                            Navigator.pushNamed(context, "/painelCorrida", arguments: idRequisicao);
+                          },
+                        );
+                      },
+                  );
+                }
+              }
+              break;
+          }
+        }
       ),
     );
   }

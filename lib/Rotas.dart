@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fretez/Views/Login/Login.dart';
+import 'package:fretez/Views/Painel/PainelCorrida.dart';
 import 'package:fretez/Views/Register/RegisterStep0.dart';
 import 'package:fretez/Views/Register/RegisterStep1.dart';
 import 'package:fretez/Views/Register/RegisterStep2.dart';
@@ -9,6 +10,8 @@ import 'package:fretez/Views/Painel/PainelMotorista.dart';
 
 class Rotas {
   static Route<dynamic> gerarRotas(RouteSettings settings){
+    final args = settings.arguments;
+
     switch( settings.name ){
       case "/":
         return MaterialPageRoute(
@@ -37,6 +40,10 @@ class Rotas {
       case "/painelMotorista":
         return MaterialPageRoute(
             builder: (_) => PainelMotorista()
+        );
+      case "/painelCorrida":
+        return MaterialPageRoute(
+            builder: (_) => PainelCorrida(args)
         );
     }
   }
