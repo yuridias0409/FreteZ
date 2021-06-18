@@ -18,17 +18,31 @@ class UsuarioFirebase {
       .get();
 
     Map<String, dynamic> dados = snapshot.data();
-    bool isMotorist = dados["isMotorist"];
+    bool isMotorista = dados["isMotorista"];
     String email = dados["email"];
     String name = dados["name"];
 
     Usuario usuario = Usuario();
     usuario.userid = idUsuario;
-    usuario.isMotorista = isMotorist;
+    usuario.isMotorista = isMotorista;
     usuario.email = email;
     usuario.name = name;
 
     return usuario;
+  }
+
+  static atualizarDadosLocalizacao(String idRequisicao, double lat, double long, String tipo) async {
+    FirebaseFirestore db = FirebaseFirestore.instance;
+
+    Usuario usuario = await getDadosUsuarioLogado();
+    usuario.longitude = long;
+    usuario.latitude = lat;
+
+    db.collection("requisicoes")
+      .doc(idRequisicao)
+      .update({
+        "$tipo": usuario.toMap()
+      });
   }
 
 }

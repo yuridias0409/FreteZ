@@ -95,6 +95,9 @@ class _PainelMotoristaState extends State<PainelMotorista> {
       )
     );
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Painel motorista"),
+      ),
       endDrawer: SideMenu(),
       body: StreamBuilder<QuerySnapshot>(
         stream: _controller.stream,
@@ -124,7 +127,7 @@ class _PainelMotoristaState extends State<PainelMotorista> {
 
                         DocumentSnapshot item = requisicoes[indice];
                         String idRequisicao = item["id"];
-                        String nomeRequisitante = item["entrega"]["name"];
+                        String nomeRequisitante = item["requisitante"]["name"];
                         String rua = item["destino"]["rua"];
                         String numero = item["destino"]["numero"];
 

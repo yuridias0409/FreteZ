@@ -35,6 +35,7 @@ dependencies:
   google_maps_flutter: ^2.0.6 # Google Maps
   geolocator: ^5.1.1+1
   crypto: ^2.1.5
+  intl: ^0.16.1
 
 
 dev_dependencies:
@@ -67,7 +68,8 @@ flutter:
     - images/Logo.png
     - images/FreteZ.jpeg
     - images/motorista.png
-    - images/entrega.png
+    - images/requisitante.png
+    - images/localentrega.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

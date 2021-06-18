@@ -5,7 +5,7 @@ import 'package:fretez/Views/Register/RegisterStep0.dart';
 import 'package:fretez/Views/Register/RegisterStep1.dart';
 import 'package:fretez/Views/Register/RegisterStep2.dart';
 import 'package:fretez/Views/Register/RegisterStep3.dart';
-import 'package:fretez/Views/Painel/PainelPassageiro.dart';
+import 'package:fretez/Views/Painel/PainelRequisitante.dart';
 import 'package:fretez/Views/Painel/PainelMotorista.dart';
 
 class Rotas {
@@ -33,9 +33,9 @@ class Rotas {
         return MaterialPageRoute(
             builder: (_) => RegisterStep3()
         );
-      case "/painelPassageiro":
+      case "/painelRequisitante":
         return MaterialPageRoute(
-            builder: (_) => PainelPassageiro()
+            builder: (_) => PainelRequisitante()
         );
       case "/painelMotorista":
         return MaterialPageRoute(

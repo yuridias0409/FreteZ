@@ -17,13 +17,13 @@ class Requisicao {
 
 
   Map<String, dynamic> toMap(){
-    Map<String, dynamic> dadosEntrega = {
-      "userid": this.entrega.userid,
-      "name": this.entrega.name,
-      "email": this.entrega.email,
-      "isMotorist": this.entrega.isMotorista,
-      "longitude": this.entrega.longitude,
-      "latitude": this.entrega.latitude,
+    Map<String, dynamic> dadosRequisitante = {
+      "userid": this.requisitante.userid,
+      "name": this.requisitante.name,
+      "email": this.requisitante.email,
+      "isMotorista": this.requisitante.isMotorista,
+      "longitude": this.requisitante.longitude,
+      "latitude": this.requisitante.latitude,
     };
 
     Map<String, dynamic> dadosDestino = {
@@ -38,7 +38,7 @@ class Requisicao {
     Map<String, dynamic> dadosRequisicao = {
       "id": this.id,
       "status": this.status,
-      "entrega": dadosEntrega,
+      "requisitante": dadosRequisitante,
       "motorista": null,
       "destino": dadosDestino,
     };
@@ -57,9 +57,9 @@ class Requisicao {
     _motorista = value;
   }
 
-  Usuario get entrega => _entrega;
+  Usuario get requisitante => _entrega;
 
-  set entrega(Usuario value) {
+  set requisitante(Usuario value) {
     _entrega = value;
   }
 

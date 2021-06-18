@@ -36,7 +36,7 @@ class _RegisterStep3State extends State<RegisterStep3> {
           Navigator.pushNamedAndRemoveUntil(context, "/painelMotorista", (_) => false);
           break;
         case false:
-          Navigator.pushNamedAndRemoveUntil(context, "/painelPassageiro", (_) => false);
+          Navigator.pushNamedAndRemoveUntil(context, "/painelRequisitante", (_) => false);
           break;
       }
     }).catchError((error){

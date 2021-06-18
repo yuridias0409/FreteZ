@@ -35,9 +35,10 @@ class Usuario {
   Map<String, dynamic> toMap(){
     Map<String, dynamic> map = {
       "name": this.name,
+      "userid": this.userid,
       "email": this.email,
       "dateOfBirth": this.date_of_birth,
-      "isMotorist": this.isMotorista,
+      "isMotorista": this.isMotorista,
       "cpf": this.cpf,
       "latitude": this.latitude,
       "longitude": this.longitude

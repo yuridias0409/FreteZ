@@ -32,12 +32,12 @@ class _LoginState extends State<Login> {
       .get();
 
     Map<String, dynamic> dados = snapshot.data();
-    bool tipoUsuario = dados["isMotorist"];
+    bool tipoUsuario = dados["isMotorista"];
 
     if(tipoUsuario){
       Navigator.pushReplacementNamed(context, "/painelMotorista");
     } else{
-      Navigator.pushReplacementNamed(context, "/painelPassageiro");
+      Navigator.pushReplacementNamed(context, "/painelRequisitante");
     }
   }
 
