@@ -1,6 +1,14 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SideMenu extends StatelessWidget {
+
+  Future<void> _logOut() async {
+    await FirebaseAuth.instance.signOut();
+  }
+
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -9,7 +17,7 @@ class SideMenu extends StatelessWidget {
         children: <Widget>[
           DrawerHeader(
             child: Text(
-              '{{Name}}',
+              auth.currentUser.email,
               style: TextStyle(color: Colors.white, fontSize: 25),
             ),
             decoration: BoxDecoration(
@@ -19,29 +27,12 @@ class SideMenu extends StatelessWidget {
                     image: AssetImage('assets/images/cover.jpg'))),
           ),
           ListTile(
-            leading: Icon(Icons.input),
-            title: Text('Welcome'),
-            onTap: () => {},
-          ),
-          ListTile(
-            leading: Icon(Icons.verified_user),
-            title: Text('Profile'),
-            onTap: () => {Navigator.of(context).pop()},
-          ),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Settings'),
-            onTap: () => {Navigator.of(context).pop()},
-          ),
-          ListTile(
-            leading: Icon(Icons.border_color),
-            title: Text('Feedback'),
-            onTap: () => {Navigator.of(context).pop()},
-          ),
-          ListTile(
             leading: Icon(Icons.exit_to_app),
             title: Text('Logout'),
-            onTap: () => {Navigator.of(context).pop()},
+            onTap: () => {
+              _logOut(),
+              Navigator.pushReplacementNamed(context, "/")
+            },
           ),
         ],
       ),
